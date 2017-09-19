@@ -15,7 +15,7 @@ void updateImageData() {
     data[i+2] = 0;
     data[i+3] = 0;
     if (i%23 == 0) {
-      data[i+3] = 255;
+      data[i+1] = 255;
     }
   }
 }

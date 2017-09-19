@@ -15,15 +15,35 @@ int rightClickState = 0;
 
 float cubeVerticies[] = {
 	// front
-	-1.0, -1.0,  1.0,  0.0,  0.0,
-	 1.0, -1.0,  1.0,  0.0,  0.0,
-	 1.0,  1.0,  1.0,  0.0,  0.0,
-	-1.0,  1.0,  1.0,  0.0,  0.0,
+	-1.0, -1.0,  1.0,  0.0,  0.333, // 0
+	 1.0, -1.0,  1.0,  0.25, 0.333, // 1
+	 1.0,  1.0,  1.0,  0.25, 0.666, // 2
+	-1.0,  1.0,  1.0,  0.0,  0.666, // 3
 	// back
-	-1.0, -1.0, -1.0,  0.0,  0.0,
-	 1.0, -1.0, -1.0,  0.0,  0.0,
-	 1.0,  1.0, -1.0,  0.0,  0.0,
-	-1.0,  1.0, -1.0,  0.0,  0.0
+	-1.0, -1.0,  -1.0,  0.5,  0.333, // 4
+	 1.0, -1.0,  -1.0,  0.75, 0.333, // 5
+	 1.0,  1.0,  -1.0,  0.75, 0.666, // 6
+	-1.0,  1.0,  -1.0,  0.5,  0.666, // 7
+	// right
+	 1.0, -1.0,  -1.0,  0.75,  0.333, // 8
+	 1.0, -1.0,   1.0,  1.0,   0.333, // 9
+	 1.0,  1.0,   1.0,  1.0,   0.666, // 10
+	 1.0,  1.0,  -1.0,  0.75,  0.666, // 11
+	 // left
+	-1.0, -1.0,  -1.0,  0.25,  0.333, // 12
+	-1.0, -1.0,   1.0,  0.5,   0.333, // 13
+	-1.0,  1.0,   1.0,  0.5,   0.666, // 14
+	-1.0,  1.0,  -1.0,  0.25,  0.666, // 15
+	// top
+	-1.0,  1.0,  -1.0,  0.25,  0.666, // 16
+	-1.0,  1.0,   1.0,  0.5,   0.666, // 17
+	 1.0,  1.0,   1.0,  0.5,   0.999, // 18
+	 1.0,  1.0,  -1.0,  0.25,  0.999, // 19
+	 // bottom
+	 -1.0,  -1.0,  -1.0,  0.25,  0.0, // 20
+	 -1.0,  -1.0,   1.0,  0.5,   0.0, // 21
+		1.0,  -1.0,   1.0,  0.5,   0.333, // 22
+		1.0,  -1.0,  -1.0,  0.25,  0.333 // 23
 };
 
 unsigned int cubeIndicies[] = {
@@ -31,20 +51,20 @@ unsigned int cubeIndicies[] = {
 	0, 1, 2,
 	2, 3, 0,
 	// top
-	1, 5, 6,
-	6, 2, 1,
+	16, 17, 18,
+	18, 19, 16,
 	// back
-	7, 6, 5,
-	5, 4, 7,
+	4, 5, 6,
+	6, 7, 4,
 	// bottom
-	4, 0, 3,
-	3, 7, 4,
+	20, 21, 22,
+	22, 23, 20,
 	// left
-	4, 5, 1,
-	1, 0, 4,
+	12, 13, 14,
+	14, 15, 12,
 	// right
-	3, 2, 6,
-	6, 7, 3
+	8, 9, 10,
+	10, 11, 8
 };
 
 void changeSize(int w, int h) {
@@ -64,7 +84,7 @@ void changeSize(int w, int h) {
 void renderScene(void) {
 	Mat4 projection, camera, model;
 	Vec3 camLoc = {sin(camAngle)*camZoom, camHeight*camZoom, cos(camAngle)*camZoom};
-	Vec3 eye = {0.0, 0.0, 0.0};
+	Vec3 lookat = {0.0, 0.0, 0.0};
 	Vec3 up = {0.0, 1.0, 0.0};
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,28 +96,28 @@ void renderScene(void) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIbo);
 
 	// set verticies attribute
-	GLuint vertAttrib = glGetAttribLocation(p, "vert\x00");
+	GLuint vertAttrib = glGetAttribLocation(p, "vert");
 	glEnableVertexAttribArray(vertAttrib);
 	glVertexAttribPointer(vertAttrib, 3, GL_FLOAT, 0, 5*4, (void*)0);
 
 	// set texture coord attribute
-	GLuint texCoordAttrib = glGetAttribLocation(p, "texCoord\x00");
+	GLuint texCoordAttrib = glGetAttribLocation(p, "texCoord");
 	glEnableVertexAttribArray(texCoordAttrib);
 	glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, 0, 5*4, (void*)(3*4));
 
 	Math_Perspective(projection, Math_DegToRad(CAMERA_FOV_Y), aspect, CAMERA_NEAR, CAMERA_FAR);
-	GLint projectionLoc = glGetUniformLocation(p, "projection\x00");
+	GLint projectionLoc = glGetUniformLocation(p, "projection");
 	glUniformMatrix4fv(projectionLoc, 1, 0, &projection[0]);
 
-	Math_LookAtV(camera, eye, camLoc, up);
-	GLint cameraLoc = glGetUniformLocation(p, "camera\x00");
+	Math_LookAtV(camera, camLoc, lookat, up);
+	GLint cameraLoc = glGetUniformLocation(p, "camera");
 	glUniformMatrix4fv(cameraLoc, 1, 0, &camera[0]);
 
 	Math_Translate3D(model, 0.0, 0.0, 0.0);
-	GLint modelLoc = glGetUniformLocation(p, "model\x00");
+	GLint modelLoc = glGetUniformLocation(p, "model");
 	glUniformMatrix4fv(modelLoc, 1, 0, &model[0]);
 
-	GLint cameraTranslationLoc = glGetUniformLocation(p, "cameraTranslation\x00");
+	GLint cameraTranslationLoc = glGetUniformLocation(p, "cameraTranslation");
 	glUniform3f(cameraTranslationLoc, camLoc[0], camLoc[1], camLoc[2]);
 
 	glDrawElements(GL_TRIANGLES, nbCubeElements, GL_UNSIGNED_INT, (void*)0);
@@ -241,8 +261,12 @@ void initRenderer(void) {
 	glutMouseFunc(mouseClick);
 
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
+	// glDisable(GL_CULL_FACE);
 	glClearColor(0.0, 0.0, 0.1, 1.0);
+	
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
 	setShaders();
 	initCube();
