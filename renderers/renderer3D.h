@@ -21,6 +21,11 @@
 #define CAMERA_SPEED 0.01
 #define CAMERA_SCROLL_SPEED 0.01
 
+#define RAY_RESOLUTION 100.0
+
+#ifndef RENDERER3D_H
+#define RENDERER3D_H
+
 typedef struct {
   unsigned char *data;
   int width;
@@ -34,6 +39,8 @@ typedef struct {
   int nbIndicies;
   int nbVerticies;
 } Geometry;
+
+#endif
 
 void initRenderer();
 

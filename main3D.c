@@ -4,21 +4,13 @@
 #include <GL/glut.h>
 #endif
 
+#include <math.h>
 #include "renderers/renderer3D.h"
+#include "renderers/textfile.h"
+#include "binary/binary.h"
 
-unsigned char data[4000];
 
-void updateImageData() {
-  for (int i=0;i<1000;i++) {
-    data[i] = 255;
-    data[i+1] = 0;
-    data[i+2] = 0;
-    data[i+3] = 0;
-    if (i%23 == 0) {
-      data[i+1] = 255;
-    }
-  }
-}
+#define IMAGE_WIDTH 64
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
@@ -26,13 +18,21 @@ int main(int argc, char **argv) {
   glutCreateWindow("red 3D lighted cube");
   glutReshapeWindow(800, 800);
   initRenderer();
-  updateImageData();
+
+  unsigned char *imageData = malloc(sizeof(unsigned char)*IMAGE_WIDTH*IMAGE_WIDTH*IMAGE_WIDTH*4);
+  File f = fileRead("/Users/joshuawales/Desktop/pics/download.jpeg");
+  printf("file size: %d\n", f.size);
+  int intensity = 800/cbrt(f.size);
+  printf("intensity: %d\n", intensity);
+  linear3DVisualisation(&f.data[0], &imageData[0], f.size, IMAGE_WIDTH, intensity);
+
   Image img;
-  img.data = &data[0];
-  img.width = 10;
-  img.height = 10;
-  img.depth = 10;
+  img.data = &imageData[0];
+  img.width = IMAGE_WIDTH;
+  img.height = IMAGE_WIDTH;
+  img.depth = IMAGE_WIDTH;
   setImage(img);
+
   glutMainLoop();
   return 0;
 }

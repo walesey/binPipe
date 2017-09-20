@@ -43,3 +43,30 @@ int textFileWrite(char *fn, char *s) {
 	}
 	return(status);
 }
+
+File fileRead(char *fn) {
+	FILE *fp;
+	File content;
+
+	int count=0;
+
+	if (fn != NULL) {
+		fp = fopen(fn,"rt");
+
+		if (fp != NULL) {
+      
+      fseek(fp, 0, SEEK_END);
+      count = ftell(fp);
+      rewind(fp);
+
+			if (count > 0) {
+				content.data = (unsigned char *)malloc(sizeof(char) * (count+1));
+				count = fread(content.data,sizeof(char),count,fp);
+				content.data[count] = '\0';
+			}
+			fclose(fp);
+		}
+	}
+	content.size = count;
+	return content;
+}

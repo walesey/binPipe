@@ -14,57 +14,47 @@ float mouse[2] = {0,0};
 int rightClickState = 0;
 
 float cubeVerticies[] = {
-	// front
-	-1.0, -1.0,  1.0,  0.0,  0.333, // 0
-	 1.0, -1.0,  1.0,  0.25, 0.333, // 1
-	 1.0,  1.0,  1.0,  0.25, 0.666, // 2
-	-1.0,  1.0,  1.0,  0.0,  0.666, // 3
-	// back
-	-1.0, -1.0,  -1.0,  0.5,  0.333, // 4
-	 1.0, -1.0,  -1.0,  0.75, 0.333, // 5
-	 1.0,  1.0,  -1.0,  0.75, 0.666, // 6
-	-1.0,  1.0,  -1.0,  0.5,  0.666, // 7
-	// right
-	 1.0, -1.0,  -1.0,  0.75,  0.333, // 8
-	 1.0, -1.0,   1.0,  1.0,   0.333, // 9
-	 1.0,  1.0,   1.0,  1.0,   0.666, // 10
-	 1.0,  1.0,  -1.0,  0.75,  0.666, // 11
-	 // left
-	-1.0, -1.0,  -1.0,  0.25,  0.333, // 12
-	-1.0, -1.0,   1.0,  0.5,   0.333, // 13
-	-1.0,  1.0,   1.0,  0.5,   0.666, // 14
-	-1.0,  1.0,  -1.0,  0.25,  0.666, // 15
-	// top
-	-1.0,  1.0,  -1.0,  0.25,  0.666, // 16
-	-1.0,  1.0,   1.0,  0.5,   0.666, // 17
-	 1.0,  1.0,   1.0,  0.5,   0.999, // 18
-	 1.0,  1.0,  -1.0,  0.25,  0.999, // 19
-	 // bottom
-	 -1.0,  -1.0,  -1.0,  0.25,  0.0, // 20
-	 -1.0,  -1.0,   1.0,  0.5,   0.0, // 21
-		1.0,  -1.0,   1.0,  0.5,   0.333, // 22
-		1.0,  -1.0,  -1.0,  0.25,  0.333 // 23
+	-1, -1, -1, -1, -1, -1, 0.25, 0.334, 
+	-1, 1, -1, -1, 1, -1, 0.25, 0.6662, 
+	-1, 1, 1, -1, 1, 1, 0.5, 0.6662, 
+	-1, 1, 1, -1, 1, 1, 0.5, 0.6662, 
+	-1, -1, 1, -1, -1, 1, 0.5, 0.334, 
+	-1, -1, -1, -1, -1, -1, 0.25, 0.334, 
+	1, -1, -1, 1, -1, -1, 1, 0.334, 
+	1, -1, 1, 1, -1, 1, 0.75, 0.334, 
+	1, 1, 1, 1, 1, 1, 0.75, 0.666, 
+	1, 1, 1, 1, 1, 1, 0.75, 0.666, 
+	1, 1, -1, 1, 1, -1, 1, 0.666, 
+	1, -1, -1, 1, -1, -1, 1, 0.334, 
+	-1, -1, -1, -1, -1, -1, 0.25, 0.333,
+	-1, -1, 1, -1, -1, 1, 0.5, 0.333,
+	1, -1, 1, 1, -1, 1, 0.5, 0,
+	1, -1, 1, 1, -1, 1, 0.5, 0,
+	1, -1, -1, 1, -1, -1, 0.25, 0,
+	-1, -1, -1, -1, -1, -1, 0.25, 0.333, 
+	-1, -1, 1, -1, -1, 1, 0.5, 0.334, 
+	-1, 1, 1, -1, 1, 1, 0.5, 0.666, 
+	1, 1, 1, 1, 1, 1, 0.75, 0.666, 
+	1, 1, 1, 1, 1, 1, 0.75, 0.666, 
+	1, -1, 1, 1, -1, 1, 0.75, 0.334,
+	-1, -1, 1, -1, -1, 1, 0.5, 0.334,
+	-1, 1, 1, -1, 1, 1, 0.5, 0.667, 
+	-1, 1, -1, -1, 1, -1, 0.25, 0.667, 
+	1, 1, -1, 1, 1, -1, 0.25, 1, 
+	1, 1, -1, 1, 1, -1, 0.25, 1, 
+	1, 1, 1, 1, 1, 1, 0.5, 1, 
+	-1, 1, 1, -1, 1, 1, 0.5, 0.667, 
+	1, -1, -1, 1, -1, -1, 0, 0.333, 
+	1, 1, -1, 1, 1, -1, 0, 0.666, 
+	-1, 1, -1, -1, 1, -1, 0.25, 0.666,
+	-1, 1, -1, -1, 1, -1, 0.25, 0.666,
+	-1, -1, -1, -1, -1, -1, 0.25, 0.333,
+	1, -1, -1, 1, -1, -1, 0, 0.333,
 };
 
 unsigned int cubeIndicies[] = {
-	// front
-	0, 1, 2,
-	2, 3, 0,
-	// top
-	16, 17, 18,
-	18, 19, 16,
-	// back
-	4, 5, 6,
-	6, 7, 4,
-	// bottom
-	20, 21, 22,
-	22, 23, 20,
-	// left
-	12, 13, 14,
-	14, 15, 12,
-	// right
-	8, 9, 10,
-	10, 11, 8
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+	18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
 };
 
 void changeSize(int w, int h) {
@@ -83,9 +73,13 @@ void changeSize(int w, int h) {
 
 void renderScene(void) {
 	Mat4 projection, camera, model;
-	Vec3 camLoc = {sin(camAngle)*camZoom, camHeight*camZoom, cos(camAngle)*camZoom};
 	Vec3 lookat = {0.0, 0.0, 0.0};
 	Vec3 up = {0.0, 1.0, 0.0};
+	Vec3 camLoc = {
+		sin(camAngle)*camZoom, 
+		camHeight*camZoom,
+		cos(camAngle)*camZoom
+	};
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -98,12 +92,17 @@ void renderScene(void) {
 	// set verticies attribute
 	GLuint vertAttrib = glGetAttribLocation(p, "vert");
 	glEnableVertexAttribArray(vertAttrib);
-	glVertexAttribPointer(vertAttrib, 3, GL_FLOAT, 0, 5*4, (void*)0);
+	glVertexAttribPointer(vertAttrib, 3, GL_FLOAT, 0, 8*4, (void*)0);
+
+	// set normals attribute
+	GLuint normalAttrib = glGetAttribLocation(p, "normal");
+	glEnableVertexAttribArray(normalAttrib);
+	glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, 0, 8*4, (void*)(3*4));
 
 	// set texture coord attribute
 	GLuint texCoordAttrib = glGetAttribLocation(p, "texCoord");
 	glEnableVertexAttribArray(texCoordAttrib);
-	glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, 0, 5*4, (void*)(3*4));
+	glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, 0, 8*4, (void*)(6*4));
 
 	Math_Perspective(projection, Math_DegToRad(CAMERA_FOV_Y), aspect, CAMERA_NEAR, CAMERA_FAR);
 	GLint projectionLoc = glGetUniformLocation(p, "projection");
@@ -126,8 +125,9 @@ void renderScene(void) {
 }
 
 void processKeys(unsigned char key, int x, int y) {
-	if (key == 27) 
+	if (key == 113) {
 		exit(0);
+	}
 }
 
 void mouseClick(int button, int state, int x, int y) {
@@ -238,6 +238,11 @@ void setImage(Image img) {
 	GLint textureLoc = glGetUniformLocation(p, "tex");
 	glProgramUniform1i(p, textureLoc , 0);
 	loadTexture(img, GL_TEXTURE0);
+
+	GLint marchLoc = glGetUniformLocation(p, "march");
+	glUniform1f(marchLoc, 1.0/img.width);
+	GLint detailLoc = glGetUniformLocation(p, "detail");
+	glUniform1f(detailLoc, img.width/RAY_RESOLUTION);
 }
 
 void initCube() {
@@ -261,7 +266,8 @@ void initRenderer(void) {
 	glutMouseFunc(mouseClick);
 
 	glEnable(GL_DEPTH_TEST);
-	// glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0, 0.0, 0.1, 1.0);
 	
 	GLuint vao;
