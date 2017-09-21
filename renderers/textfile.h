@@ -14,6 +14,8 @@ typedef struct {
 
 File fileRead(char *fn);
 
+int fileWrite(char *fn, File s);
+
 char *textFileRead(char *fn);
 
 int textFileWrite(char *fn, char *s);

@@ -45,3 +45,5 @@ typedef struct {
 void initRenderer();
 
 void setImage(Image img);
+
+void onUpdate(void (*fn)());

@@ -5,6 +5,8 @@ GLuint v, f, p;
 GLuint cubeVbo, cubeIbo;
 GLsizei nbCubeElements;
 
+GLuint texID;
+
 float camAngle = 1.0;
 float camHeight = 2.0;
 float camZoom = 3.0;
@@ -12,6 +14,8 @@ float aspect = 1.0;
 
 float mouse[2] = {0,0};
 int rightClickState = 0;
+
+void (*update)();
 
 float cubeVerticies[] = {
 	-1, -1, -1, -1, -1, -1, 0.25, 0.334, 
@@ -80,6 +84,8 @@ void renderScene(void) {
 		camHeight*camZoom,
 		cos(camAngle)*camZoom
 	};
+
+	if (update != NULL) update();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -235,9 +241,11 @@ GLuint loadIBO(Geometry geometry) {
 }
 
 void setImage(Image img) {
+	glDeleteTextures(1, &texID);
+
 	GLint textureLoc = glGetUniformLocation(p, "tex");
 	glProgramUniform1i(p, textureLoc , 0);
-	loadTexture(img, GL_TEXTURE0);
+	texID = loadTexture(img, GL_TEXTURE0);
 
 	GLint marchLoc = glGetUniformLocation(p, "march");
 	glUniform1f(marchLoc, 1.0/img.width);
@@ -255,6 +263,10 @@ void initCube() {
 	cubeVbo = loadVBO(cube);
 	cubeIbo = loadIBO(cube);
 	nbCubeElements = cube.nbIndicies;
+}
+
+void onUpdate(void (*fn)()) {
+	update = fn;
 }
 
 void initRenderer(void) {

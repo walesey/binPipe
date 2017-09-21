@@ -70,3 +70,20 @@ File fileRead(char *fn) {
 	content.size = count;
 	return content;
 }
+
+int fileWrite(char *fn, File s) {
+	FILE *fp;
+	int status = 0;
+
+	if (fn != NULL) {
+		fp = fopen(fn,"w");
+
+		if (fp != NULL) {
+			
+			if (fwrite(s.data,sizeof(char),s.size,fp) == s.size)
+				status = 1;
+			fclose(fp);
+		}
+	}
+	return(status);
+}
