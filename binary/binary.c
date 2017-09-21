@@ -24,9 +24,9 @@ void linear3DVisualisation(
     if (a < (255 - 50)) {
       a = a + intensity;
     }
-    r = 0;
+    r = 50;
     g = 255;
-    b = 0;
+    b = 100;
 
     // write new values
     imageData[index] = r;
