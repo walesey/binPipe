@@ -33,6 +33,9 @@ Image img;
 pthread_t read_thread;
 pthread_mutex_t lock;
 
+/*
+  Allocate buffer memory and shared memory
+*/
 void initImageData() {
   nbBytes = sizeof(unsigned char)*IMAGE_WIDTH*IMAGE_WIDTH*IMAGE_WIDTH*4;
   int protection = PROT_READ | PROT_WRITE;
@@ -44,6 +47,10 @@ void initImageData() {
   img.depth = IMAGE_WIDTH;
 }
 
+/*
+  fadeImage - Call once per frame update
+  Gradually reduce the alpha of the overall image.
+*/
 void fadeImage() {
   // throttle the fade
   counter++;
@@ -64,6 +71,10 @@ void fadeImage() {
   pthread_mutex_unlock(&lock);
 }
 
+/*
+  readInputData - open the 'data' file and periodically check for new data.
+  data is transformed and written to the imageData buffer.
+*/
 void readInputData() {
   int filed = open("data", O_RDWR );
   char buf[READ_BUFFER];
@@ -76,7 +87,6 @@ void readInputData() {
   int nbytes;
   while (1) {
     nbytes = read(filed, buf, READ_BUFFER);
-    printf("read %d bytes from file.\n", nbytes);
     if(nbytes > 0) {
       pthread_mutex_lock(&lock);
       int intensity = 1000/cbrt(nbytes);
@@ -87,6 +97,9 @@ void readInputData() {
   }
 }
 
+/*
+  renderUpdate - function called by the renderer once per frame.
+*/
 void renderUpdate() {
   usleep(15000);
   updateCounter--;
@@ -100,6 +113,9 @@ void renderUpdate() {
   fadeImage();
 }
 
+/*
+  launchWindow - launch a new glut window and fire up the 3D renderer.
+*/
 void launchWindow(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE);
@@ -108,8 +124,8 @@ void launchWindow(int argc, char **argv) {
   initRenderer();
   onUpdate(renderUpdate);
   glutMainLoop();
-  printf("Opengl closed properly");
 }
+
 
 int main(int argc, char **argv) {
   initImageData();

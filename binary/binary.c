@@ -1,5 +1,20 @@
 #include "binary.h"
 
+void transformPixel(
+  unsigned char *r, 
+  unsigned char *g, 
+  unsigned char *b, 
+  unsigned char *a, 
+  int intensity
+) {
+  if ((*a) < (255 - 50)) {
+    (*a) = (*a) + intensity;
+  }
+  (*r) = 50;
+  (*g) = 255;
+  (*b) = 100;
+}
+
 void linear3DVisualisation(
   unsigned char *input,     // pointer to the input data buffer
   unsigned char *imageData, // pointer to the output rgba image buffer
@@ -21,12 +36,7 @@ void linear3DVisualisation(
     unsigned char a = imageData[index+3];
     
     // transform the color
-    if (a < (255 - 50)) {
-      a = a + intensity;
-    }
-    r = 50;
-    g = 255;
-    b = 100;
+    transformPixel(&r, &g, &b, &a, intensity);
 
     // write new values
     imageData[index] = r;
