@@ -15,19 +15,22 @@
 #include "renderers/textfile.h"
 #include "binary/binary.h"
 
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 800
 
 #define READ_BUFFER 100000
 #define IMAGE_WIDTH 128
-#define FRAMES_PER_UPDATE 10
+#define FRAMES_PER_UPDATE 4
+#define FRAMES_PER_FADE 15
 
+int counter = 0;
 int updateCounter = 0;
-int running = 1;
 
 int nbBytes;
 unsigned char *imageData;
 Image img;
 
-pid_t pid;
+pthread_t read_thread;
 pthread_mutex_t lock;
 
 void initImageData() {
@@ -41,6 +44,26 @@ void initImageData() {
   img.depth = IMAGE_WIDTH;
 }
 
+void fadeImage() {
+  // throttle the fade
+  counter++;
+  if (counter<FRAMES_PER_FADE) {
+    return;
+  }
+  counter = 0;
+  pthread_mutex_lock(&lock);
+  for (int i=0; i<nbBytes; i+=4){
+    unsigned char r, g, b, a;
+    r = imageData[i]; g = imageData[i+1]; b = imageData[i+2]; a = imageData[i+3];
+    if (r < 255) r++;
+    if (g > 0) g--;
+    if (b > 0) b--;
+    if (a > 0) a--;
+    imageData[i] = r; imageData[i+1] = g; imageData[i+2] = b; imageData[i+3] = a;
+  }
+  pthread_mutex_unlock(&lock);
+}
+
 void readInputData() {
   int filed = open("data", O_RDWR );
   char buf[READ_BUFFER];
@@ -51,7 +74,7 @@ void readInputData() {
   }
 
   int nbytes;
-  while (running) {
+  while (1) {
     nbytes = read(filed, buf, READ_BUFFER);
     printf("read %d bytes from file.\n", nbytes);
     if(nbytes > 0) {
@@ -59,7 +82,7 @@ void readInputData() {
       int intensity = 1000/cbrt(nbytes);
       linear3DVisualisation(buf, imageData, nbytes, IMAGE_WIDTH, intensity);
       pthread_mutex_unlock(&lock);
-    }
+    }    
     usleep(100*1000);
   }
 }
@@ -67,45 +90,42 @@ void readInputData() {
 void renderUpdate() {
   usleep(15000);
   updateCounter--;
-  if (updateCounter <=0) {
+  if (updateCounter <= 0) {
     updateCounter = FRAMES_PER_UPDATE;
     pthread_mutex_lock(&lock);
     memcpy(img.data, imageData, nbBytes);
     setImage(img);
     pthread_mutex_unlock(&lock);
   }
+  fadeImage();
 }
 
 void launchWindow(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE);
   glutCreateWindow("Bin Pipe 3D");
-  glutReshapeWindow(400, 400);
+  glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
   initRenderer();
   onUpdate(renderUpdate);
   glutMainLoop();
+  printf("Opengl closed properly");
 }
 
 int main(int argc, char **argv) {
   initImageData();
 
   if (pthread_mutex_init(&lock, NULL) != 0) {
-    printf("\n mutex init failed\n");
+    fprintf(stderr, "mutex init failed\n");
     return 1;
   }
 
-  if ((pid = fork()) < 0){
-    fprintf(stderr, "Failed to fork()!\n");
+  if (pthread_create(&read_thread, NULL, readInputData, NULL)) {
+    fprintf(stderr, "Error creating thread\n");
     return 1;
   }
 
-  if (pid == 0) { // child
-    readInputData();
-  } else { // parent
-    launchWindow(argc, argv);
-  }
+  launchWindow(argc, argv);
 
   pthread_mutex_destroy(&lock);
-  running = 0;
   return 0;
 }
