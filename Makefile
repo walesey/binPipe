@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -lGL -lGLU -lglut
+CFLAGS = -lGL -lGLU -lglut -lpthread -lm -std=gnu99
 CFLAGS_MAC = -framework OpenGL -framework GLUT
 
 BUILD_DIR = build

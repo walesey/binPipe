@@ -250,7 +250,7 @@ void setImage(Image img) {
 	glDeleteTextures(1, &texID);
 
 	GLint textureLoc = glGetUniformLocation(p, "tex");
-	glProgramUniform1i(p, textureLoc , 0);
+	glUniform1i(textureLoc , 0);
 	texID = loadTexture(img, GL_TEXTURE0);
 
 	GLint marchLoc = glGetUniformLocation(p, "march");

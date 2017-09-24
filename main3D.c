@@ -18,7 +18,7 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
 
-#define READ_BUFFER 100000
+#define READ_BUFFER 10000
 #define IMAGE_WIDTH 128
 #define FRAMES_PER_UPDATE 4
 #define FRAMES_PER_FADE 15
@@ -77,7 +77,7 @@ void fadeImage() {
 */
 void readInputData() {
   int filed = open("data", O_RDWR );
-  char buf[READ_BUFFER];
+  char *buf = malloc(READ_BUFFER);
 
   if (!filed) {
     printf("Openfile error\n");
