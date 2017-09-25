@@ -1,7 +1,7 @@
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #endif
 
 #include <stdio.h>
@@ -118,7 +118,12 @@ void renderUpdate() {
 */
 void launchWindow(int argc, char **argv) {
   glutInit(&argc, argv);
+#ifdef __APPLE__
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE);
+#else
+  glutInitContextVersion (3, 2);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+#endif  
   glutCreateWindow("Bin Pipe 3D");
   glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
   initRenderer();
