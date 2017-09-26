@@ -7,9 +7,10 @@ Requirements:
   * gcc
   * opengl/glut
 
-Compile with: `$ make run` or `$ make runMac`
+Compile and Run with: `$ make run` or `$ make runMac`
+For 2D mode use: `$ make run2D` or `$ make runMac2D`
 
-Write data to `./data`: eg. `$ ls -R / >> data`
+Write data to `./data`: eg. `$ cat /dev/urandom > data`
 
 The purpose of this program is to create a 3D visualization of binary data. 
 The way it works is that reads chuncks of data from the `./data` file,
@@ -18,3 +19,4 @@ It continues to scan the data 3 bytes at a time, mapping these coordinate to pix
 The result is an interesting visualization.
 
 ![screenshot](https://raw.githubusercontent.com/walesey/binPipe/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/walesey/binPipe/master/screenshot2.png)
