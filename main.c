@@ -21,9 +21,8 @@
 #define IMAGE_WIDTH_3D 128
 #define IMAGE_WIDTH_2D 256
 
-#define READ_BUFFER 1000000
 #define FRAMES_PER_UPDATE 4
-#define FRAMES_PER_FADE 15
+#define FRAMES_PER_FADE 5
 
 int counter = 0;
 int updateCounter = 0;
@@ -38,8 +37,8 @@ pthread_mutex_t lock;
 /*
   Allocate buffer memory and shared memory
 */
-void initImageData(int imageWidth) {
-  nbBytes = sizeof(unsigned char)*imageWidth*imageWidth*imageWidth*4;
+void initImageData(int imageWidth, int dimensions) {
+  nbBytes = sizeof(unsigned char)*pow(imageWidth, dimensions)*4;
   int protection = PROT_READ | PROT_WRITE;
   int visibility = MAP_ANONYMOUS | MAP_SHARED;
   imageData = mmap(NULL, nbBytes, protection, visibility, 0, 0);
@@ -78,23 +77,14 @@ void fadeImage() {
   data is transformed and written to the imageData buffer.
 */
 void readInputData(int dimensions, int imageWidth) {
-  int filed = open("data", O_RDWR );
-  char *buf = malloc(READ_BUFFER);
-
-  if (!filed) {
-    printf("Openfile error\n");
-    exit(-1);
-  }
-
-  int nbytes;
   while (1) {
-    nbytes = read(filed, buf, READ_BUFFER);
-    if(nbytes > 0) {
-      pthread_mutex_lock(&lock);
-      int intensity = 1000/cbrt(nbytes);
-      linearVisualisation(buf, imageData, nbytes, imageWidth, intensity, dimensions);
-      pthread_mutex_unlock(&lock);
-    }    
+    File f = fileRead("data");
+    pthread_mutex_lock(&lock);
+    int intensity = 1000/cbrt(f.size);
+    linearVisualisation(f.data, imageData, f.size, imageWidth, intensity, dimensions);
+    pthread_mutex_unlock(&lock);
+    if (f.size > 0) free(f.data);
+    textFileWrite("data", "");
     usleep(100*1000);
   }
 }
@@ -160,18 +150,20 @@ void launchWindow(int dimensions) {
 }
 
 int main(int argc, char **argv) {
-
   void *threadFunc;
   int dimensions;
+  int imageWidth;
   if (argc == 2 && strcmp(argv[1], "2D") == 0) {
-    initImageData(IMAGE_WIDTH_2D);
     dimensions = 2;
     threadFunc = readInputData2D;
+    imageWidth = IMAGE_WIDTH_2D;
   } else {
-    initImageData(IMAGE_WIDTH_3D);
     dimensions = 3;
     threadFunc = readInputData3D;
+    imageWidth = IMAGE_WIDTH_3D;
   }
+
+  initImageData(imageWidth, dimensions);
 
   if (pthread_mutex_init(&lock, NULL) != 0) {
     fprintf(stderr, "mutex init failed\n");
