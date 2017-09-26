@@ -6,7 +6,6 @@ uniform float detail;
 
 in vec3 worldVertex;
 in vec3 worldCam;
-in vec2 fragTexCoord;
 
 out vec4 outputColor;
 

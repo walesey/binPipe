@@ -18,42 +18,42 @@ int rightClickState = 0;
 void (*update)();
 
 float cubeVerticies[] = {
-	-1, -1, -1, 0.25, 0.334, //  0
-	-1,  1, -1, 0.25, 0.6662, //  1
-	-1,  1,  1, 0.5,  0.6662, //  2
-	-1,  1,  1, 0.5,  0.6662, //  3
-	-1, -1,  1, 0.5,  0.334, //  4
-	-1, -1, -1, 0.25, 0.334, // 5 
-	 1, -1, -1, 1,    0.334, //  6
-	 1, -1,  1, 0.75, 0.334, // 7 
-	 1,  1,  1, 0.75, 0.666, //  8
-	 1,  1,  1, 0.75, 0.666, //  9
-	 1,  1, -1, 1,    0.666, //  10
-	 1, -1, -1, 1,    0.334, //  11
-	-1, -1, -1, 0.25, 0.333, //12 
-	-1, -1,  1, 0.5,  0.333, // 13
-	 1, -1,  1, 0.5,  0, // 14
-	 1, -1,  1, 0.5,  0, // 15
-	 1, -1, -1, 0.25, 0, // 16
-	-1, -1, -1, 0.25, 0.333, // 17 
-	-1, -1,  1, 0.5,  0.334, //  18
-	-1,  1,  1, 0.5,  0.666, //  19
-	 1,  1,  1, 0.75, 0.666, //  20
-	 1,  1,  1, 0.75, 0.666, //  21
-	 1, -1,  1, 0.75, 0.334, // 22
-	-1, -1,  1, 0.5,  0.334, // 23
-	-1,  1,  1, 0.5,  0.667, //  24
-	-1,  1, -1, 0.25, 0.667, //  25
-	 1,  1, -1, 0.25, 1, //  26
-	 1,  1, -1, 0.25, 1, //  27
-	 1,  1,  1, 0.5,  1, //  28
-	-1,  1,  1, 0.5,  0.667, //29  
-	 1, -1, -1, 0,    0.333, //  30
-	 1,  1, -1, 0,    0.666, //  31
-	-1,  1, -1, 0.25, 0.666, //32 
-	-1,  1, -1, 0.25, 0.666, // 33
-	-1, -1, -1, 0.25, 0.333, // 34
-	 1, -1, -1, 0,    0.333 // 35
+	-1, -1, -1,
+	-1,  1, -1,
+	-1,  1,  1,
+	-1,  1,  1,
+	-1, -1,  1,
+	-1, -1, -1,
+	 1, -1, -1,
+	 1, -1,  1,
+	 1,  1,  1,
+	 1,  1,  1,
+	 1,  1, -1,
+	 1, -1, -1,
+	-1, -1, -1,
+	-1, -1,  1,
+	 1, -1,  1,
+	 1, -1,  1,
+	 1, -1, -1,
+	-1, -1, -1,
+	-1, -1,  1,
+	-1,  1,  1,
+	 1,  1,  1,
+	 1,  1,  1,
+	 1, -1,  1,
+	-1, -1,  1,
+	-1,  1,  1,
+	-1,  1, -1,
+	 1,  1, -1,
+	 1,  1, -1,
+	 1,  1,  1,
+	-1,  1,  1,
+	 1, -1, -1,
+	 1,  1, -1,
+	-1,  1, -1,
+	-1,  1, -1,
+	-1, -1, -1,
+	 1, -1, -1,
 };
 
 unsigned int cubeIndicies[] = {
@@ -71,7 +71,7 @@ unsigned int cubeIndicies[] = {
 	33, 34, 35, 36,
 };
 
-void changeSize(int w, int h) {
+void renderer3D_changeSize(int w, int h) {
 	if(h == 0)
 		h = 1;
 
@@ -85,7 +85,7 @@ void changeSize(int w, int h) {
 	glViewport(0, 0, w, h);
 }
 
-void renderScene(void) {
+void renderer3D_renderScene(void) {
 	Mat4 projection, camera, model;
 	Vec3 lookat = {0.0, 0.0, 0.0};
 	Vec3 up = {0.0, 1.0, 0.0};
@@ -108,12 +108,7 @@ void renderScene(void) {
 	// set verticies attribute
 	GLuint vertAttrib = glGetAttribLocation(p, "vert");
 	glEnableVertexAttribArray(vertAttrib);
-	glVertexAttribPointer(vertAttrib, 3, GL_FLOAT, 0, 5*4, (void*)0);
-
-	// set texture coord attribute
-	GLuint texCoordAttrib = glGetAttribLocation(p, "texCoord");
-	glEnableVertexAttribArray(texCoordAttrib);
-	glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, 0, 5*4, (void*)(3*4));
+	glVertexAttribPointer(vertAttrib, 3, GL_FLOAT, 0, 3*4, (void*)0);
 
 	Math_Perspective(projection, Math_DegToRad(CAMERA_FOV_Y), aspect, CAMERA_NEAR, CAMERA_FAR);
 	GLint projectionLoc = glGetUniformLocation(p, "projection");
@@ -135,12 +130,6 @@ void renderScene(void) {
 	glutSwapBuffers();
 }
 
-void processKeys(unsigned char key, int x, int y) {
-	if (key == 113) {
-		exit(0);
-	}
-}
-
 void mouseClick(int button, int state, int x, int y) {
 	mouse[0] = x;
 	mouse[1] = y;
@@ -160,23 +149,7 @@ void mouseMotion(int x, int y) {
 	mouse[1] = y;
 }
 
-void compileShader(GLuint shader) {
-	glCompileShader(shader);
-	int status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE) {
-		int logLength;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-
-		char *logs = malloc(sizeof(char) * logLength);
-		glGetShaderInfoLog(shader, logLength, NULL, logs);
-
-		printf("failed to compile shader: %s", logs);
-		free(logs);
-	}
-}
-
-void setShaders() {
+void renderer3D_setShaders() {
 	char *vs = NULL,*fs = NULL;
 
 	v = glCreateShader(GL_VERTEX_SHADER);
@@ -206,7 +179,7 @@ void setShaders() {
 	glBindFragDataLocation(p, 0, "outputColor");
 }
 
-GLuint loadTexture(Image img, GLuint textureUnit) {
+GLuint loadTexture3D(image_t img, GLuint textureUnit) {
 	GLuint texId;
 	glGenTextures(1, &texId);
 	glActiveTexture(textureUnit);
@@ -230,28 +203,12 @@ GLuint loadTexture(Image img, GLuint textureUnit) {
 	return texId;
 }
 
-GLuint loadVBO(Geometry geometry) {
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, geometry.nbVerticies*4, geometry.verticies, GL_STATIC_DRAW);
-	return vbo;
-}
-
-GLuint loadIBO(Geometry geometry) {
-	GLuint ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, geometry.nbVerticies*4, geometry.indicies, GL_STATIC_DRAW);
-	return ibo;
-}
-
-void setImage(Image img) {
+void renderer3D_setImage(image_t img) {
 	glDeleteTextures(1, &texID);
 
 	GLint textureLoc = glGetUniformLocation(p, "tex");
 	glUniform1i(textureLoc , 0);
-	texID = loadTexture(img, GL_TEXTURE0);
+	texID = loadTexture3D(img, GL_TEXTURE0);
 
 	GLint marchLoc = glGetUniformLocation(p, "march");
 	glUniform1f(marchLoc, 1.0/img.width);
@@ -260,9 +217,9 @@ void setImage(Image img) {
 }
 
 void initCube() {
-	Geometry cube;
-	cube.indicies = &cubeIndicies[0];
-	cube.verticies = &cubeVerticies[0];
+	geometry_t cube;
+	cube.indicies = cubeIndicies;
+	cube.verticies = cubeVerticies;
 	cube.nbIndicies = sizeof(cubeIndicies);
 	cube.nbVerticies = sizeof(cubeVerticies);
 
@@ -271,14 +228,14 @@ void initCube() {
 	nbCubeElements = cube.nbIndicies;
 }
 
-void onUpdate(void (*fn)()) {
+void renderer3D_onUpdate(void (*fn)()) {
 	update = fn;
 }
 
-void initRenderer(void) {
-	glutDisplayFunc(renderScene);
-	glutIdleFunc(renderScene);
-	glutReshapeFunc(changeSize);
+void renderer3D_initRenderer(void) {
+	glutDisplayFunc(renderer3D_renderScene);
+	glutIdleFunc(renderer3D_renderScene);
+	glutReshapeFunc(renderer3D_changeSize);
 	glutKeyboardFunc(processKeys);
 	glutMotionFunc(mouseMotion);
 	glutMouseFunc(mouseClick);
@@ -292,6 +249,6 @@ void initRenderer(void) {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	setShaders();
+	renderer3D_setShaders();
 	initCube();
 }

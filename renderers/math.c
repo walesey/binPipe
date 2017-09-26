@@ -1,5 +1,18 @@
 #include "math.h"
 
+void Math_Ortho(Mat4 m, float left, float right, float bottom, float top) {
+	float near = -1;
+	float far = 1;
+	float rml = right - left;
+	float tmb = top - bottom;
+	float fmn = far - near;
+	
+	m[0] = (2.0 / rml); m[1] = 0; m[2] = 0; m[3] = 0;
+	m[4] = 0; m[5] = (2.0 / tmb); m[6] = 0, m[7] = 0; 
+	m[8] = 0; m[9] = 0; m[10] = (-2.0 / fmn); m[11] = 0; 
+	m[12] = (-(right + left) / rml); m[13] = (-(top + bottom) / tmb); m[14] = (-(far + near) / fmn); m[15] = 1;
+}
+
 void Math_Perspective(Mat4 m, float fovy, float aspect, float near, float far) {
 	float nmf = near-far;
 	float f = 1.0/tan(fovy/2.0);
@@ -37,6 +50,13 @@ void Math_Translate3D(Mat4 m, float Tx, float Ty, float Tz) {
 	m[4] = 0; m[5] = 1; m[6] = 0; m[7] = 0;
 	m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
 	m[12] = Tx; m[13] = Ty; m[14] = Tz; m[15] = 1;
+}
+
+void Math_Scale3D(Mat4 m, float Sx, float Sy, float Sz) {
+	m[0]  = Sx; m[1]  = 0;  m[2] =  0;  m[3]  = 0;
+	m[4]  = 0;  m[5]  = Sy; m[6] =  0;  m[7]  = 0;
+	m[8]  = 0;  m[9]  = 0;  m[10] = Sz; m[11] = 0;
+	m[12] = 0;  m[13] = 0;  m[14] = 0;  m[15] = 1;
 }
 
 float Math_DegToRad(float angle) {

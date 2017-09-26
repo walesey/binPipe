@@ -11,15 +11,17 @@
 #include <pthread.h>
 #include <sys/mman.h>
 
+#include "renderers/renderer2D.h"
 #include "renderers/renderer3D.h"
 #include "renderers/textfile.h"
 #include "binary/binary.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
+#define IMAGE_WIDTH_3D 128
+#define IMAGE_WIDTH_2D 256
 
-#define READ_BUFFER 10000
-#define IMAGE_WIDTH 128
+#define READ_BUFFER 1000000
 #define FRAMES_PER_UPDATE 4
 #define FRAMES_PER_FADE 15
 
@@ -28,7 +30,7 @@ int updateCounter = 0;
 
 int nbBytes;
 unsigned char *imageData;
-Image img;
+image_t img;
 
 pthread_t read_thread;
 pthread_mutex_t lock;
@@ -36,15 +38,15 @@ pthread_mutex_t lock;
 /*
   Allocate buffer memory and shared memory
 */
-void initImageData() {
-  nbBytes = sizeof(unsigned char)*IMAGE_WIDTH*IMAGE_WIDTH*IMAGE_WIDTH*4;
+void initImageData(int imageWidth) {
+  nbBytes = sizeof(unsigned char)*imageWidth*imageWidth*imageWidth*4;
   int protection = PROT_READ | PROT_WRITE;
   int visibility = MAP_ANONYMOUS | MAP_SHARED;
   imageData = mmap(NULL, nbBytes, protection, visibility, 0, 0);
   img.data = malloc(nbBytes);
-  img.width = IMAGE_WIDTH;
-  img.height = IMAGE_WIDTH;
-  img.depth = IMAGE_WIDTH;
+  img.width = imageWidth;
+  img.height = imageWidth;
+  img.depth = imageWidth;
 }
 
 /*
@@ -75,7 +77,7 @@ void fadeImage() {
   readInputData - open the 'data' file and periodically check for new data.
   data is transformed and written to the imageData buffer.
 */
-void readInputData() {
+void readInputData(int dimensions, int imageWidth) {
   int filed = open("data", O_RDWR );
   char *buf = malloc(READ_BUFFER);
 
@@ -90,62 +92,99 @@ void readInputData() {
     if(nbytes > 0) {
       pthread_mutex_lock(&lock);
       int intensity = 1000/cbrt(nbytes);
-      linear3DVisualisation(buf, imageData, nbytes, IMAGE_WIDTH, intensity);
+      linearVisualisation(buf, imageData, nbytes, imageWidth, intensity, dimensions);
       pthread_mutex_unlock(&lock);
     }    
     usleep(100*1000);
   }
 }
 
+void readInputData3D() {
+  readInputData(3, IMAGE_WIDTH_3D);
+}
+
+void readInputData2D() {
+  readInputData(2, IMAGE_WIDTH_2D);
+}
+
 /*
-  renderUpdate - function called by the renderer once per frame.
+  renderUpdate3D - function called by the 3D renderer once per frame.
 */
-void renderUpdate() {
+void renderUpdate(int dimensions) {
   usleep(15000);
   updateCounter--;
   if (updateCounter <= 0) {
     updateCounter = FRAMES_PER_UPDATE;
     pthread_mutex_lock(&lock);
     memcpy(img.data, imageData, nbBytes);
-    setImage(img);
+    if (dimensions == 3) {
+      renderer3D_setImage(img);
+    } else if (dimensions == 2) {
+      renderer2D_setImage(img);
+    }
     pthread_mutex_unlock(&lock);
   }
   fadeImage();
 }
 
+void renderUpdate3D() {
+  renderUpdate(3);
+}
+
+void renderUpdate2D() {
+  renderUpdate(2);
+}
+
 /*
-  launchWindow - launch a new glut window and fire up the 3D renderer.
+  launchWindow - launch a new glut window and fire up the renderer.
 */
-void launchWindow(int argc, char **argv) {
-  glutInit(&argc, argv);
+void launchWindow(int dimensions) {
 #ifdef __APPLE__
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE);
 #else
   glutInitContextVersion (3, 2);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 #endif  
-  glutCreateWindow("Bin Pipe 3D");
+  glutCreateWindow("BinPipe 3D");
   glutReshapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT);
-  initRenderer();
-  onUpdate(renderUpdate);
+  if (dimensions == 3) {
+    printf("launching 3D Renderer\n");
+    renderer3D_initRenderer();
+    renderer3D_onUpdate(renderUpdate3D);
+  } else if (dimensions == 2) {
+    printf("launching 2D Renderer\n");
+    renderer2D_initRenderer();
+    renderer2D_onUpdate(renderUpdate2D);
+  }
   glutMainLoop();
 }
 
-
 int main(int argc, char **argv) {
-  initImageData();
+
+  void *threadFunc;
+  int dimensions;
+  if (argc == 2 && strcmp(argv[1], "2D") == 0) {
+    initImageData(IMAGE_WIDTH_2D);
+    dimensions = 2;
+    threadFunc = readInputData2D;
+  } else {
+    initImageData(IMAGE_WIDTH_3D);
+    dimensions = 3;
+    threadFunc = readInputData3D;
+  }
 
   if (pthread_mutex_init(&lock, NULL) != 0) {
     fprintf(stderr, "mutex init failed\n");
     return 1;
   }
 
-  if (pthread_create(&read_thread, NULL, readInputData, NULL)) {
+  if (pthread_create(&read_thread, NULL, threadFunc, NULL)) {
     fprintf(stderr, "Error creating thread\n");
     return 1;
   }
 
-  launchWindow(argc, argv);
+  glutInit(&argc, argv);
+  launchWindow(dimensions);
 
   pthread_mutex_destroy(&lock);
   return 0;

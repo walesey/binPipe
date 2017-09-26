@@ -12,9 +12,11 @@ typedef float Vec3[3];
 typedef float Vec4[4];
 
 
+void Math_Ortho(Mat4 m, float left, float right, float bottom, float top);
 void Math_Perspective(Mat4 m, float fovy, float aspect, float near, float far);
 void Math_LookAtV(Mat4 m, Vec3 eye, Vec3 center, Vec3 up);
 void Math_Translate3D(Mat4 m, float Tx, float Ty, float Tz);
+void Math_Scale3D(Mat4 m, float Sx, float Sy, float Sz);
 float Math_DegToRad(float angle);
 
 float Vec3_Len(Vec3 v1);

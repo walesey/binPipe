@@ -10,6 +10,8 @@
 
 #include "textfile.h"
 #include "math.h"
+#include "types.h"
+#include "common.h"
 
 #define FILE_BUFFER_SIZE 1024
 
@@ -23,27 +25,8 @@
 
 #define RAY_RESOLUTION 100.0
 
-#ifndef RENDERER3D_H
-#define RENDERER3D_H
+void renderer3D_initRenderer();
 
-typedef struct {
-  unsigned char *data;
-  int width;
-  int height;
-  int depth;
-} Image;
+void renderer3D_setImage(image_t img);
 
-typedef struct {
-	unsigned int *indicies;
-	float *verticies;
-  int nbIndicies;
-  int nbVerticies;
-} Geometry;
-
-#endif
-
-void initRenderer();
-
-void setImage(Image img);
-
-void onUpdate(void (*fn)());
+void renderer3D_onUpdate(void (*fn)());

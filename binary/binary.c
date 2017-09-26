@@ -7,7 +7,7 @@ void transformPixel(
   unsigned char *a, 
   int intensity
 ) {
-  if ((*a) < (255 - 50)) {
+  if ((*a) < (255 - intensity)) {
     (*a) = (*a) + intensity;
   }
   (*r) = 50;
@@ -15,19 +15,21 @@ void transformPixel(
   (*b) = 100;
 }
 
-void linear3DVisualisation(
+void linearVisualisation(
   unsigned char *input,     // pointer to the input data buffer
   unsigned char *imageData, // pointer to the output rgba image buffer
   int length,               // number of bytes to process from input
   int resolution,           // pixel width for the output 3d image (max 255)
-  int intensity             // rate of pixel transformation
+  int intensity,            // rate of pixel transformation
+  int dimensions            // number of dimensions for the output image
 ) {
   for (int i=0; (i+2)<length; i+=3) {
-    int x = (input[i]*resolution)/256;
-    int y = (input[i+1]*resolution)/256;
-    int z = (input[i+2]*resolution)/256;
-
-    int index = 4*(x + y*resolution + z*resolution*resolution);
+    int index = 0;
+    for (int j=0; j<dimensions; j++) {
+      int coordinate = (input[i+j]*resolution)/256;
+      index += coordinate * (pow(resolution, j));
+    }
+    index *= 4;
 
     // existing pixel value
     unsigned char r = imageData[index];
